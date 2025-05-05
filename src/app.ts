@@ -1,10 +1,11 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import mongoose from 'mongoose';
 import { errors } from 'celebrate';
 import usersRouter from './routes/users';
 import cardsRouter from './routes/cards';
 import errorHandler from './middlewares/error';
 import withTemporaryUser from './middlewares/with-temporary-user';
+import notFoundRoute from './middlewares/not-fount-route';
 
 const { PORT = 4000 } = process.env;
 
@@ -21,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(withTemporaryUser);
 app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
+app.use(notFoundRoute);
 
 // error handling
 app.use(errors());

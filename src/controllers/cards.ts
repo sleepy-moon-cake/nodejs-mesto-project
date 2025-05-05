@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { NotFountError } from '../helper/errors';
+import { NotFountError } from '../helper/classes/errors';
 import Card from '../models/card';
+import { databaseErrorHandler } from '../helper/utils/database-error-handler';
 
 export const createCard = (req: Request, res: Response, next: NextFunction) => {
-  const { name, link } = req.body;
+  const { name, link } = req.body || {};
 
   Card.create({
     name,
@@ -13,7 +14,7 @@ export const createCard = (req: Request, res: Response, next: NextFunction) => {
     .then((card) => {
       res.send(card);
     })
-    .catch(next);
+    .catch((err) => databaseErrorHandler(err, next, `Bad request with {name: ${name}, link: ${link} }`));
 };
 
 export const getCards = (req: Request, res: Response, next: NextFunction) => {
@@ -21,13 +22,11 @@ export const getCards = (req: Request, res: Response, next: NextFunction) => {
     .then((cards) => {
       res.send(cards);
     })
-    .catch(next);
+    .catch((err) => databaseErrorHandler(err, next, 'Bad request'));
 };
 
 export const deleteCardById = (req: Request, res: Response, next: NextFunction) => {
-  const { cardId } = req.params;
-
-  Card.findByIdAndDelete(cardId)
+  Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
       if (!card) {
         throw new NotFountError(`Card not found with id:${req.params.cardId}`);
@@ -35,7 +34,7 @@ export const deleteCardById = (req: Request, res: Response, next: NextFunction) 
 
       res.send(card);
     })
-    .catch(next);
+    .catch((err) => databaseErrorHandler(err, next, `Bad request with cardId ${req.params.cardId}`));
 };
 
 export const likeCard = (req: Request, res: Response, next: NextFunction) => {
@@ -44,14 +43,11 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) => {
     { $addToSet: { likes: (req as unknown as any).user.id } },
     { new: true },
   )
+    .orFail(() => new NotFountError(`Card not found with id:${req.params.cardId}`))
     .then((card) => {
-      if (!card) {
-        throw new NotFountError(`Card not found with id:${req.params.cardId}`);
-      }
-
       res.send(card);
     })
-    .catch(next);
+    .catch((err) => databaseErrorHandler(err, next, `Bad request with cardId ${req.params.cardId}`));
 };
 
 export const dislikeCard = (req: Request, res: Response, next: NextFunction) => {
@@ -60,15 +56,9 @@ export const dislikeCard = (req: Request, res: Response, next: NextFunction) => 
     { $pull: { likes: (req as unknown as any).user.id } },
     { new: true },
   )
+    .orFail(() => new NotFountError(`Card not found with id:${req.params.cardId}`))
     .then((card) => {
-      if (!card) {
-        throw new NotFountError(`Card not found with id:${req.params.cardId}`);
-      }
-
       res.send(card);
     })
-    .catch(() => {
-      throw new NotFountError(`Card not found with id:${req.params.cardId}`);
-    })
-    .catch(next);
+    .catch((err) => databaseErrorHandler(err, next, `Bad request with cardId ${req.params.cardId}`));
 };

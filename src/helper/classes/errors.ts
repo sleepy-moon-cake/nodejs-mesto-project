@@ -3,10 +3,9 @@ export interface BaseError extends Error {
 }
 
 export class NotFountError extends Error implements BaseError {
-  public statusCode: number;
+  public statusCode = 404;
+}
 
-  constructor(message: string) {
-    super(message);
-    this.statusCode = 404;
-  }
+export class BadRequestEror extends Error implements BaseError {
+  public statusCode = 400;
 }
