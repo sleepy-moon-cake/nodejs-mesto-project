@@ -42,7 +42,7 @@ export const updateUser = (req: Request, res: Response, next: NextFunction) => {
 
   const { id } = (req as unknown as any).user;
 
-  User.findByIdAndUpdate(id, { name, about })
+  User.findByIdAndUpdate(id, { name, about }, { new: true })
     .then((user) => {
       res.send(user);
     })
@@ -54,7 +54,7 @@ export const updateUserAvatar = (req: Request, res: Response, next: NextFunction
 
   const { id } = (req as unknown as any).user;
 
-  User.findByIdAndUpdate(id, { avatar })
+  User.findByIdAndUpdate(id, { avatar }, { new: true })
     .then((user) => {
       res.send(user);
     })
