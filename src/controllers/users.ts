@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
-import { COOKIE_JWT_KEY } from '../helper/constants/auth-key';
+import { JWT_COOKIE_KEY } from '../helper/constants/auth-key';
 import { generateToken } from '../helper/utils/token';
 import { databaseErrorHandler } from '../helper/utils/database-error-handler';
 import User from '../models/user';
@@ -23,7 +23,7 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
         const token = generateToken(user._id);
 
         res.status(201);
-        res.cookie(COOKIE_JWT_KEY, token, { httpOnly: true, maxAge: 604800 });
+        res.cookie(JWT_COOKIE_KEY, token, { httpOnly: true, maxAge: 604800 });
         res.send({ message: 'Signup' });
       })
       .catch((err) => databaseErrorHandler(
@@ -53,14 +53,22 @@ export const getUsers = (req: Request, res: Response, next: NextFunction) => {
     .catch((err) => databaseErrorHandler(err, next, 'Bad request'));
 };
 
+export const getCurrentUser = (req: Request, res: Response, next: NextFunction) => {
+  const { _id } = (req as unknown as any).user;
+  User.findById(_id)
+    .orFail(() => new NotFountError('User not found'))
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((err) => databaseErrorHandler(err, next, 'Bad request'));
+};
+
 export const updateUser = (req: Request, res: Response, next: NextFunction) => {
   const { name, about } = req.body || {};
-  console.log('AAAAAAAAAAAAAAAAAAA');
-  console.log(req.cookies[COOKIE_JWT_KEY]);
-  console.log('AAAAAAAAAAAAAAAAAAA');
-  const { id } = (req as unknown as any).user;
 
-  User.findByIdAndUpdate(id, { name, about }, { new: true })
+  const { _id } = (req as unknown as any).user;
+
+  User.findByIdAndUpdate(_id, { name, about }, { new: true })
     .orFail(() => new NotFountError('User not found'))
     .then((user) => {
       res.send(user);
@@ -71,9 +79,9 @@ export const updateUser = (req: Request, res: Response, next: NextFunction) => {
 export const updateUserAvatar = (req: Request, res: Response, next: NextFunction) => {
   const { avatar } = req.body || {};
 
-  const { id } = (req as unknown as any).user;
+  const { _id } = (req as unknown as any).user;
 
-  User.findByIdAndUpdate(id, { avatar }, { new: true })
+  User.findByIdAndUpdate(_id, { avatar }, { new: true })
     .orFail(() => new NotFountError('User not found'))
     .then((user) => {
       res.send(user);
@@ -96,8 +104,8 @@ export const login = (req: Request, res: Response, next: NextFunction) => {
     .then((user) => {
       const token = generateToken(user._id);
 
-      res.clearCookie(COOKIE_JWT_KEY);
-      res.cookie(COOKIE_JWT_KEY, token, { httpOnly: true, maxAge: 604800 });
+      res.clearCookie(JWT_COOKIE_KEY);
+      res.cookie(JWT_COOKIE_KEY, token, { httpOnly: true, maxAge: 604800 });
       res.send({ message: 'Signin' });
     })
     .catch((err) => databaseErrorHandler(err, next, 'Bad request'));

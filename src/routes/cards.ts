@@ -1,11 +1,7 @@
 import { Router } from 'express';
 import { celebrate, Joi } from 'celebrate';
 import {
-  createCard,
-  deleteCardById as deleteCard,
-  getCards,
-  likeCard,
-  dislikeCard,
+  createCard, deleteCardById, getCards, likeCard, dislikeCard,
 } from '../controllers/cards';
 
 const router = Router();
@@ -30,7 +26,7 @@ router.delete(
       cardId: Joi.string().hex().length(24),
     }),
   }),
-  deleteCard,
+  deleteCardById,
 );
 
 router.put(

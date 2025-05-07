@@ -2,10 +2,10 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { errors, celebrate, Joi } from 'celebrate';
 import cookieParser from 'cookie-parser';
+import auth from './middlewares/auth';
 import usersRouter from './routes/users';
 import cardsRouter from './routes/cards';
 import errorHandler from './middlewares/error';
-import withTemporaryUser from './middlewares/with-temporary-user';
 import notFoundRoute from './middlewares/not-fount-route';
 import { createUser, login } from './controllers/users';
 
@@ -22,7 +22,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // routing
-app.use(withTemporaryUser);
 app.use(
   '/signin',
   celebrate({
@@ -47,6 +46,8 @@ app.use(
   }),
   createUser,
 );
+
+app.use(auth);
 app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
 app.use(notFoundRoute);

@@ -1,10 +1,12 @@
-import { model, ObjectId, Schema } from 'mongoose';
+import {
+  model, Types, ObjectId, Schema, Document,
+} from 'mongoose';
 
-interface ICard {
+interface ICard extends Document {
   name: string;
   link: string;
-  owner: ObjectId;
-  likes?: Array<ObjectId>;
+  owner: Types.ObjectId;
+  likes?: Array<Types.ObjectId>;
   createdAt?: Date;
 }
 

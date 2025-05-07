@@ -13,3 +13,7 @@ export class BadRequestError extends Error implements BaseError {
 export class UnauthorizedError extends Error implements BaseError {
   public statusCode = 401;
 }
+
+export class ForbiddenError extends Error implements BaseError {
+  public statusCode = 403;
+}
