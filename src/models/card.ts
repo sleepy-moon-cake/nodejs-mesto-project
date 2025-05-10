@@ -1,6 +1,7 @@
 import {
   model, Types, Schema, Document,
 } from 'mongoose';
+import { isURL } from 'validator';
 
 interface ICard extends Document {
   name: string;
@@ -21,6 +22,7 @@ const cardSchema = new Schema<ICard>(
     link: {
       type: String,
       required: true,
+      validate: isURL,
     },
     owner: {
       type: Schema.Types.ObjectId,

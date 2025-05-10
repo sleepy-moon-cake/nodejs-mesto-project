@@ -1,5 +1,6 @@
 import { Response, Request, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
+import { constants } from 'http2';
 import { JWT_COOKIE_KEY } from '../helper/constants/auth-key';
 import { generateToken } from '../helper/utils/token';
 import { isCastError, isConflitError, isValidationError } from '../helper/utils/database-error';
@@ -22,7 +23,7 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
       .then((user) => {
         const token = generateToken(user._id);
 
-        res.status(201);
+        res.status(constants.HTTP_STATUS_CREATED);
         res.cookie(JWT_COOKIE_KEY, token, { httpOnly: true, maxAge: 604800 });
         res.send({ message: 'Signup' });
       })

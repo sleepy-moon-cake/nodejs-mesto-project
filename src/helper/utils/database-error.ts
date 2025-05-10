@@ -6,4 +6,4 @@ export const isCastError = (error: Error): boolean => error.name === MongooseErr
 
 export const isValidationError = (error: Error): boolean => error.name === MongooseError.ValidationError.name;
 
-export const isConflitError = (error: Error): boolean => error instanceof MongooseError && error.message.includes(CONFLICT_MESSAGE_CODE);
+export const isConflitError = (error: Error): boolean => error instanceof Error && error.message.includes(CONFLICT_MESSAGE_CODE);

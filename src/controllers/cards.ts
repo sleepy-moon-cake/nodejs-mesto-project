@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
+import { constants } from 'http2';
 import { NotFountError, ForbiddenError, BadRequestError } from '../helper/classes/errors';
 import Card from '../models/card';
 import { isCastError, isValidationError } from '../helper/utils/database-error';
@@ -44,7 +45,7 @@ export const deleteCardById = async (req: Request, res: Response, next: NextFunc
       }
 
       return card.deleteOne().then(() => {
-        res.status(204).send();
+        res.status(constants.HTTP_STATUS_NO_CONTENT).send();
       });
     })
     .catch((err) => {

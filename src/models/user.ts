@@ -1,7 +1,7 @@
 import { Document, Schema, model } from 'mongoose';
 import { isEmail, isURL } from 'validator';
 
-export interface IUser extends Document {
+export interface IUser extends Document<Schema.Types.ObjectId> {
   name: string;
   about: string;
   avatar: string;

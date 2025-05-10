@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import 'dotenv/config';
 import { errors } from 'celebrate';
 import cookieParser from 'cookie-parser';
 import router from './routes';
@@ -7,7 +8,7 @@ import errorHandler from './middlewares/error';
 import notFoundRoute from './middlewares/not-fount-route';
 import { requestLogger, errorLogger } from './middlewares/logger';
 
-const { PORT = 4000 } = process.env;
+const { PORT = 4000, DB_URI = 'mongodb://localhost:27017/mestodb' } = process.env;
 
 const app = express();
 
@@ -31,7 +32,7 @@ app.use(errorHandler);
     console.log(`Server has been started on ${PORT}`);
   });
 
-  mongoose.connect('mongodb://localhost:27017/mestodb').then((val) => {
+  mongoose.connect(DB_URI).then(() => {
     console.log('Database has been connected');
   });
 }());
