@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { Schema, Types } from 'mongoose';
-import { NotFountError, ForbiddenError } from '../helper/classes/errors';
+import { Types } from 'mongoose';
+import { NotFountError, ForbiddenError, BadRequestError } from '../helper/classes/errors';
 import Card from '../models/card';
-import { databaseErrorHandler } from '../helper/utils/database-error-handler';
+import { isCastError, isValidationError } from '../helper/utils/database-error';
 
 export const createCard = (req: Request, res: Response, next: NextFunction) => {
   const { name, link } = req.body || {};
@@ -15,15 +15,21 @@ export const createCard = (req: Request, res: Response, next: NextFunction) => {
     .then((card) => {
       res.send(card);
     })
-    .catch((err) => databaseErrorHandler(err, next, `Bad request with {name: ${name}, link: ${link} }`));
+    .catch((err) => {
+      if (isValidationError(err) || isCastError(err)) {
+        next(new BadRequestError(`Bad request with {name: ${name}, link: ${link} }`));
+      } else {
+        next(err);
+      }
+    });
 };
 
-export const getCards = (req: Request, res: Response, next: NextFunction) => {
+export const getCards = (_req: Request, res: Response, next: NextFunction) => {
   Card.find({})
     .then((cards) => {
       res.send(cards);
     })
-    .catch((err) => databaseErrorHandler(err, next, 'Bad request'));
+    .catch(next);
 };
 
 export const deleteCardById = async (req: Request, res: Response, next: NextFunction) => {
@@ -41,7 +47,13 @@ export const deleteCardById = async (req: Request, res: Response, next: NextFunc
         res.status(204).send();
       });
     })
-    .catch((err) => databaseErrorHandler(err, next, `Bad request with cardId ${req.params.cardId}`));
+    .catch((err) => {
+      if (isValidationError(err) || isCastError(err)) {
+        next(new BadRequestError(`Bad request with cardId ${req.params.cardId}`));
+      } else {
+        next(err);
+      }
+    });
 };
 
 export const likeCard = (req: Request, res: Response, next: NextFunction) => {
@@ -54,7 +66,13 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) => {
     .then((card) => {
       res.send(card);
     })
-    .catch((err) => databaseErrorHandler(err, next, `Bad request with cardId ${req.params.cardId}`));
+    .catch((err) => {
+      if (isValidationError(err)) {
+        next(new BadRequestError(`Bad request with cardId ${req.params.cardId}`));
+      } else {
+        next(next);
+      }
+    });
 };
 
 export const dislikeCard = (req: Request, res: Response, next: NextFunction) => {
@@ -67,5 +85,11 @@ export const dislikeCard = (req: Request, res: Response, next: NextFunction) => 
     .then((card) => {
       res.send(card);
     })
-    .catch((err) => databaseErrorHandler(err, next, `Bad request with cardId ${req.params.cardId}`));
+    .catch((err) => {
+      if (isValidationError(err) || isCastError(err)) {
+        next(new BadRequestError(`Bad request with cardId ${req.params.cardId}`));
+      } else {
+        next(next);
+      }
+    });
 };
