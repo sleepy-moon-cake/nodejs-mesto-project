@@ -1,5 +1,5 @@
 import {
-  model, Types, ObjectId, Schema, Document,
+  model, Types, Schema, Document,
 } from 'mongoose';
 
 interface ICard extends Document {

@@ -2,10 +2,10 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { errors } from 'celebrate';
 import cookieParser from 'cookie-parser';
-import { router } from './routes';
-import auth from './middlewares/auth';
+import router from './routes';
 import errorHandler from './middlewares/error';
 import notFoundRoute from './middlewares/not-fount-route';
+import { requestLogger, errorLogger } from './middlewares/logger';
 
 const { PORT = 4000 } = process.env;
 
@@ -15,12 +15,14 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(requestLogger);
 
 // routing
 app.use(router);
 app.use(notFoundRoute);
 
 // error handling
+app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 
